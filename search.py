@@ -143,6 +143,7 @@ class HillClimbingReset(LocalSearch):
 
 
             # Sino, moverse a un nodo con el estado sucesor
+            
             actual = Node(problem.result(actual.state, act), actual.value + diff[act])
             self.niters += 1
 
@@ -152,5 +153,59 @@ class HillClimbingReset(LocalSearch):
 
 class Tabu(LocalSearch):
     """Algoritmo de busqueda tabu."""
+    def solve(self, problem: OptProblem):
+        """Resuelve un problema de optimizacion con ascension de colinas.
 
-    # COMPLETAR
+
+        Argumentos:
+        ==========
+        problem: OptProblem
+            un problema de optimizacion
+        """
+        # Inicio del reloj
+        start = time()
+    
+
+        # Crear el nodo inicial con permutacion inicial aleatoria
+        actual = Node(problem.init, problem.obj_val(problem.init))
+        mejor = actual
+        tabu=[]
+
+        while True :#no se cumpla
+            # Determinar las acciones que se pueden aplicar
+            # y las diferencias en valor objetivo que resultan
+            diff = problem.val_diff(actual.state) 
+
+
+            # Buscar las acciones que generan el mayor incremento de valor objetivo
+            max_acts = [act for act, val in diff.items() if val == max(diff.values())]
+
+
+            # Elegir una accion aleatoria
+            act = choice(max_acts)
+
+
+            # Retornar si estamos en un optimo local
+            if diff[act] <= 0 :
+                self.tour = actual.state
+                self.value = actual.value
+                end = time()
+                self.time = end - start
+                if actual.value < mejor.value:
+                    mejor = actual
+                    tabu.append(mejor)               
+                #actual =Node(problem.result(actual.state, act), actual.value + diff[act])  # Reiniciar con permutacion inicial aleatoria
+        
+
+            # Sino, moverse a un nodo con el estado sucesor
+            actual = Node(problem.result(actual.state, act), actual.value + diff[act])
+            self.niters += 1
+        return
+
+# 5 while no se cumpla el criterio de parada
+# 6 vecino ← nodo con el estado sucesor de actual con mejor valor
+# objetivo que no sea un estado tabú
+# 7 if (mejor.valor < vecino.valor) then mejor ← vecino
+# 8 actualizar la lista tabú
+# 9 actual ← vecino
+# 10 return mejor.estado
