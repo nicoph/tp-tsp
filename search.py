@@ -86,64 +86,10 @@ class HillClimbing(LocalSearch):
             # Sino, moverse a un nodo con el estado sucesor
             else:
                 
-                actual = Node(problem.result(actual.state, act),
-                              actual.value + diff[act])
+                actual = Node(problem.result(actual.state, act), actual.value + diff[act])
                 self.niters += 1
 
 
-# class HillClimbingReset(LocalSearch):
-#     """Algoritmo de ascension de colinas con reinicio aleatorio."""
-
-#     def solve(self, problem: OptProblem):
-#         """Resuelve un problema de optimizacion con ascension de colinas.
-
-#         Argumentos:
-#         ==========
-#         problem: OptProblem
-#             un problema de optimizacion
-#         """
-#         # Inicio del reloj
-        
-#         start = time()
-#         problem.random_reset()
-#         # Crear el nodo inicial
-#         # permutacion inicial aleatoria
-#         actual = Node(problem.init, problem.obj_val(problem.init))
-#         #print (actual) estado inicial por pantalla
-#         mejor=actual
-        
-#         while True:
-            
-#             # Determinar las acciones que se pueden aplicar
-#             # y las diferencias en valor objetivo que resultan
-#             diff = problem.val_diff(actual.state)
-
-#             # Buscar las acciones que generan el  mayor incremento de valor obj
-#             max_acts = [act for act, val in diff.items() if val ==
-#                         max(diff.values())]
-
-#             # Elegir una accion aleatoria
-#             act = choice(max_acts)
-            
-#             # Retornar si estamos en un optimo local
-#             if diff[act] <= 0:                
-#                 self.tour = actual.state
-#                 self.value = actual.value
-#                 end = time()
-#                 self.time = end-start
-#                 if actual.value < mejor.value:
-#                     mejor=actual
-                                        
-#                 actual=problem.random_reset()
-#                 return
-
-#             # Sino, moverse a un nodo con el estado sucesor
-#             else:
-                
-#                 actual = Node(problem.result(actual.state, act),
-#                               actual.value + diff[act])
-#                 print(actual)
-#                 self.niters += 1
 
 class HillClimbingReset(LocalSearch):
     """Algoritmo de ascension de colinas con reinicio aleatorio."""
