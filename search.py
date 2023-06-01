@@ -151,61 +151,107 @@ class HillClimbingReset(LocalSearch):
 
 
 
-class Tabu(LocalSearch):
-    """Algoritmo de busqueda tabu."""
-    def solve(self, problem: OptProblem):
-        """Resuelve un problema de optimizacion con ascension de colinas.
+# class Tabu(LocalSearch):
+#     """Algoritmo de busqueda tabu."""
+#     def solve(self, problem: OptProblem):
+#         """Resuelve un problema de optimizacion con ascension de colinas.
 
+
+#         Argumentos:
+#         ==========
+#         problem: OptProblem
+#             un problema de optimizacion
+#         """
+#         # Inicio del reloj
+#         start = time()
+    
+
+#         # Crear el nodo inicial con permutacion inicial aleatoria
+#         actual = Node(problem.init, problem.obj_val(problem.init))
+#         mejor = actual
+#         tabu=[]
+
+#         while True :#no se cumpla
+#             # Determinar las acciones que se pueden aplicar
+#             # y las diferencias en valor objetivo que resultan
+#             diff = problem.val_diff(actual.state) 
+
+
+#             # Buscar las acciones que generan el mayor incremento de valor objetivo
+#             max_acts = [act for act, val in diff.items() if val == max(diff.values())]
+
+
+#             # Elegir una accion aleatoria
+#             act = choice(max_acts)
+
+
+#             # Retornar si estamos en un optimo local
+#             if diff[act] <= 0 :
+#                 self.tour = actual.state
+#                 self.value = actual.value
+#                 end = time()
+#                 self.time = end - start
+#                 if actual.value < mejor.value:
+#                     mejor = actual
+#                     tabu.append(mejor)               
+#                 #actual =Node(problem.result(actual.state, act), actual.value + diff[act])  # Reiniciar con permutacion inicial aleatoria
+        
+
+#             # Sino, moverse a un nodo con el estado sucesor
+#             actual = Node(problem.result(actual.state, act), actual.value + diff[act])
+#             self.niters += 1
+#         return
+
+class Tabu(LocalSearch):
+    """Algoritmo de búsqueda tabú."""
+
+    def solve(self, problem: OptProblem):
+        """Resuelve un problema de optimización con búsqueda tabú.
 
         Argumentos:
         ==========
         problem: OptProblem
-            un problema de optimizacion
+            un problema de optimización
         """
         # Inicio del reloj
         start = time()
-    
 
-        # Crear el nodo inicial con permutacion inicial aleatoria
+        # Crear el nodo inicial con permutación inicial aleatoria
         actual = Node(problem.init, problem.obj_val(problem.init))
         mejor = actual
-        tabu=[]
+        tabu = []  # Lista tabú de nodos visitados
 
-        while True :#no se cumpla
+        while True:
             # Determinar las acciones que se pueden aplicar
             # y las diferencias en valor objetivo que resultan
-            diff = problem.val_diff(actual.state) 
+            diff = problem.val_diff(actual.state)
 
+            # Excluir tabu
+            possible_acts = {act: val for act, val in diff.items() if act not in tabu}
 
-            # Buscar las acciones que generan el mayor incremento de valor objetivo
-            max_acts = [act for act, val in diff.items() if val == max(diff.values())]
+            # Verificar si no hay acciones posibles(ponemos?)
+            if not possible_acts:
+                break
 
+            # Buscar la acción que genere el mayor incremento de valor objetivo
+            max_act = max(possible_acts, key=possible_acts.get)
 
-            # Elegir una accion aleatoria
-            act = choice(max_acts)
-
-
-            # Retornar si estamos en un optimo local
-            if diff[act] <= 0 :
+            # Retornar si estamos en un óptimo local
+            if possible_acts[max_act] <= 0:
                 self.tour = actual.state
                 self.value = actual.value
                 end = time()
                 self.time = end - start
                 if actual.value < mejor.value:
                     mejor = actual
-                    tabu.append(mejor)               
-                #actual =Node(problem.result(actual.state, act), actual.value + diff[act])  # Reiniciar con permutacion inicial aleatoria
-        
+                tabu.append(mejor)  # Agregar el mejor nodo a la lista tabú
+                problem.random_reset()  # Reiniciar con permutación inicial aleatoria
+                actual = Node(problem.init, problem.obj_val(problem.init))
+                continue
 
-            # Sino, moverse a un nodo con el estado sucesor
-            actual = Node(problem.result(actual.state, act), actual.value + diff[act])
+            # Moverse a un nodo con el estado sucesor
+            actual = Node(problem.result(actual.state, max_act), actual.value + possible_acts[max_act])
             self.niters += 1
-        return
 
-# 5 while no se cumpla el criterio de parada
-# 6 vecino ← nodo con el estado sucesor de actual con mejor valor
-# objetivo que no sea un estado tabú
-# 7 if (mejor.valor < vecino.valor) then mejor ← vecino
-# 8 actualizar la lista tabú
-# 9 actual ← vecino
-# 10 return mejor.estado
+        self.tour = mejor.state  # Guardar la mejor solución encontrada
+        self.value = mejor.value
