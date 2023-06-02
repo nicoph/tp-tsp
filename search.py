@@ -220,34 +220,40 @@ class Tabu(LocalSearch):
         actual = Node(problem.init, problem.obj_val(problem.init))
         mejor = actual
         tabu = []  # Lista tabú de nodos visitados
+        
 
-        while True:
+        while True:                        
             # Determinar las acciones que se pueden aplicar
             # y las diferencias en valor objetivo que resultan
             diff = problem.val_diff(actual.state)
+            # print("kjsahdfkjhaskljdfhklsdgfkgdsklfgklsdgfgFKFSKJFSJKFSFHSHFHJSJFSJFSJSJFS \n", actual.state)
 
             # Excluir tabu
             possible_acts = {act: val for act, val in diff.items() if act not in tabu}
-
+            
+            
             # Verificar si no hay acciones posibles(ponemos?)
             if not possible_acts:
                 break
 
             # Buscar la acción que genere el mayor incremento de valor objetivo
             max_act = max(possible_acts, key=possible_acts.get)
+            # print("kjsahdfkjhaskljdfhklsdgfkgdsklfgklsdgfgFKFSKJFSJKFSFHSHFHJSJFSJFSJSJFS \n", possible_acts)
 
+            
             # Retornar si estamos en un óptimo local
             if possible_acts[max_act] <= 0:
+                
                 self.tour = actual.state
                 self.value = actual.value
                 end = time()
                 self.time = end - start
-                if actual.value < mejor.value:
+                if actual.value > mejor.value:                    
                     mejor = actual
                 tabu.append(mejor)  # Agregar el mejor nodo a la lista tabú
-                problem.random_reset()  # Reiniciar con permutación inicial aleatoria
-                actual = Node(problem.init, problem.obj_val(problem.init))
-                continue
+                
+                # actual = Node(problem.init, problem.obj_val(problem.init))
+                return
 
             # Moverse a un nodo con el estado sucesor
             actual = Node(problem.result(actual.state, max_act), actual.value + possible_acts[max_act])
@@ -255,3 +261,5 @@ class Tabu(LocalSearch):
 
         self.tour = mejor.state  # Guardar la mejor solución encontrada
         self.value = mejor.value
+        #ed
+        
